@@ -26,10 +26,15 @@ class App {
 		this.#accept = document.querySelector('.accept');
 		this.#cancel = document.querySelector('.cancel');
 
+		this.#errorInfo.textContent = 'Brak zadań na liście';
+
 		this.#addButtonInput.addEventListener('click', this._addTodo.bind(this));
 		this.#ulList.addEventListener('click', this._checkClick.bind(this));
 		this.#cancel.addEventListener('click', this._cancelPopup.bind(this));
 		this.#accept.addEventListener('click', this._changeTodo.bind(this));
+		this.#todoInput.addEventListener('keyup', (e) => {
+			if (e.key === 'Enter') this._addTodo();
+		});
 	}
 
 	_addTodo() {
