@@ -6,11 +6,14 @@ class App {
 	#ulList;
 	#allTodos;
 	#todoToEdit;
+
 	#popup;
 	#popupInfo;
 	#popupInput;
 	#accept;
 	#cancel;
+
+	#todoList = [];
 
 	id = (Date.now() + '').slice(-10);
 
@@ -42,8 +45,17 @@ class App {
 			this.#errorInfo.textContent = '';
 			this.#newTodo = this.#todoInput.value;
 
+			const date = new Date();
+			const showDate = new Intl.DateTimeFormat(navigator.language, {
+				timeStyle: 'short',
+				dateStyle: 'long',
+			}).format(date);
+
 			const html = `
 				<li data-id='${this.id}'>${this.#newTodo}
+					<div class="time">
+						<span class="date">Data dodania: ${showDate}</span>
+					</div>
 					<div class="tools">
 						<button class="complete"><i class="fas fa-check"></i></button>
 						<button class="edit">EDIT</button>
@@ -51,6 +63,12 @@ class App {
 					</div>
 				</li>`;
 			this.#ulList.insertAdjacentHTML('beforeend', html);
+
+			const allTodo = [this.id, this.#newTodo, showDate];
+
+			this.#todoList.push(allTodo);
+			console.log(this.#todoList);
+			this.#todoInput.value = '';
 		} else this.#errorInfo.textContent = 'Uzupełnij formularz przed wysłaniem!';
 	}
 	_checkClick(e) {
