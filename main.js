@@ -1,3 +1,10 @@
+class Task {
+	id = (Date.now() + '').slice(-10);
+	constructor(name, date) {
+		this.name = name;
+		this.date = date;
+	}
+}
 class App {
 	#newTodo;
 	#todoInput;
@@ -38,6 +45,8 @@ class App {
 		this.#todoInput.addEventListener('keyup', (e) => {
 			if (e.key === 'Enter') this._addTodo();
 		});
+
+		this._getLocalStorage();
 	}
 
 	_addTodo() {
@@ -51,25 +60,28 @@ class App {
 				dateStyle: 'long',
 			}).format(date);
 
-			const html = `
-				<li data-id='${this.id}'>${this.#newTodo}
-					<div class="time">
-						<span class="date">Data dodania: ${showDate}</span>
-					</div>
-					<div class="tools">
-						<button class="complete"><i class="fas fa-check"></i></button>
-						<button class="edit">EDIT</button>
-						<button class="delete"><i class="fas fa-times"></i></button>
-					</div>
-				</li>`;
-			this.#ulList.insertAdjacentHTML('beforeend', html);
-
-			const allTodo = [this.id, this.#newTodo, showDate];
-
+			const allTodo = new Task(this.#newTodo, showDate);
 			this.#todoList.push(allTodo);
-			console.log(this.#todoList);
+
+			this._renderTodo(allTodo);
+			this._setLocalStorage();
+
 			this.#todoInput.value = '';
 		} else this.#errorInfo.textContent = 'Uzupełnij formularz przed wysłaniem!';
+	}
+	_renderTodo(todo) {
+		const html = `
+			<li data-id='${todo.id}'>${todo.name}
+				<div class="time">
+					<span class="date">Data dodania: ${todo.date}</span>
+				</div>
+				<div class="tools">
+					<button class="complete"><i class="fas fa-check"></i></button>
+					<button class="edit">EDIT</button>
+					<button class="delete"><i class="fas fa-times"></i></button>
+				</div>
+			</li>`;
+		this.#ulList.insertAdjacentHTML('beforeend', html);
 	}
 	_checkClick(e) {
 		const clicked = (e, value) => e.target.classList.contains(value);
@@ -109,6 +121,17 @@ class App {
 	}
 	_changeDisplay(value) {
 		this.#popup.style.display = value;
+	}
+	_setLocalStorage() {
+		localStorage.setItem('todo', JSON.stringify(this.#todoList));
+	}
+	_getLocalStorage() {
+		const data = JSON.parse(localStorage.getItem('todo'));
+
+		if (!data) return;
+
+		this.#todoList = data;
+		this.#todoList.forEach((task) => this._renderTodo(task));
 	}
 }
 
