@@ -37,6 +37,7 @@ class App {
 		this.#cancel = document.querySelector('.cancel');
 
 		this.#errorInfo.textContent = 'Brak zadań na liście';
+		console.log(this.#todoList.length);
 
 		this.#addButtonInput.addEventListener('click', this._addTodo.bind(this));
 		this.#ulList.addEventListener('click', this._checkClick.bind(this));
@@ -70,6 +71,7 @@ class App {
 		} else this.#errorInfo.textContent = 'Uzupełnij formularz przed wysłaniem!';
 	}
 	_renderTodo(todo) {
+		if (this.#todoList.length > 0) this.#errorInfo.textContent = '';
 		const html = `
 			<li data-id='${todo.id}'>${todo.name}
 				<div class="time">
@@ -119,9 +121,6 @@ class App {
 	_cancelPopup() {
 		this._changeDisplay('none');
 	}
-	_changeDisplay(value) {
-		this.#popup.style.display = value;
-	}
 	_setLocalStorage() {
 		localStorage.setItem('todo', JSON.stringify(this.#todoList));
 	}
@@ -131,7 +130,14 @@ class App {
 		if (!data) return;
 
 		this.#todoList = data;
+
+		if (this.#todoList.length === 0)
+			this.#errorInfo.textContent = 'Brak zadań na liście';
+
 		this.#todoList.forEach((task) => this._renderTodo(task));
+	}
+	_changeDisplay(value) {
+		this.#popup.style.display = value;
 	}
 }
 
