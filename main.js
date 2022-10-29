@@ -13,6 +13,7 @@ class App {
 	#ulList;
 	#allTodos;
 	#todoToEdit;
+	#removeAllButton;
 
 	#popup;
 	#popupInfo;
@@ -22,13 +23,14 @@ class App {
 
 	#todoList = [];
 
-	id = (Date.now() + '').slice(-10);
+	id = (Date.now() + '').slice(-10) + Math.trunc(Math.random() * 10);
 
 	constructor() {
 		this.#todoInput = document.querySelector('.todo-input');
 		this.#addButtonInput = document.querySelector('.btn-add');
 		this.#errorInfo = document.querySelector('.error-info');
 		this.#ulList = document.querySelector('.todolist ul');
+		this.#removeAllButton = document.querySelector('.remove-todo');
 
 		this.#popup = document.querySelector('.popup');
 		this.#popupInfo = document.querySelector('.popup-info');
@@ -65,13 +67,17 @@ class App {
 			this.#todoList.push(allTodo);
 
 			this._renderTodo(allTodo);
-			this._setLocalStorage();
+			this._setLocalStorage(allTodo);
 
 			this.#todoInput.value = '';
 		} else this.#errorInfo.textContent = 'Uzupełnij formularz przed wysłaniem!';
 	}
 	_renderTodo(todo) {
-		if (this.#todoList.length > 0) this.#errorInfo.textContent = '';
+		if (this.#todoList.length > 0) {
+			this.#errorInfo.textContent = '';
+			this.#removeAllButton.classList.remove('hidden');
+		}
+
 		const html = `
 			<li data-id='${todo.id}'>${todo.name}
 				<div class="time">
@@ -93,6 +99,7 @@ class App {
 		if (clicked(e, 'delete')) this._removeTodo(e);
 	}
 	_completeTodo(e) {
+		console.log(this.#todoList);
 		e.target.classList.toggle('completed');
 		e.target.closest('li').classList.toggle('completed');
 	}
@@ -112,24 +119,40 @@ class App {
 		}
 	}
 	_removeTodo(e) {
-		e.target.closest('li').remove();
+		const clicked = e.target.closest('li');
+		clicked.remove();
+
+		const index = this.#todoList.findIndex((task) => {
+			return task.id === clicked.dataset.id;
+		});
+		this.#todoList.splice(index, 1);
+
+		const id = clicked.dataset.id;
+
+		localStorage.removeItem(`todo${id}`);
+
 		this.#allTodos = this.#ulList.querySelectorAll('li');
 
-		if (this.#allTodos.length === 0)
+		if (this.#allTodos.length === 0) {
 			this.#errorInfo.textContent = 'Brak zadań na liście.';
+			this.#removeAllButton.classList.add('hidden');
+		}
 	}
 	_cancelPopup() {
 		this._changeDisplay('none');
 	}
-	_setLocalStorage() {
-		localStorage.setItem('todo', JSON.stringify(this.#todoList));
+	_setLocalStorage(todo) {
+		localStorage.setItem(`todo${todo.id}`, JSON.stringify(todo));
 	}
 	_getLocalStorage() {
-		const data = JSON.parse(localStorage.getItem('todo'));
+		let storage = [];
+		for (const key in localStorage) {
+			if (key.startsWith('todo')) {
+				storage.push(JSON.parse(localStorage.getItem(key)));
+			}
+		}
 
-		if (!data) return;
-
-		this.#todoList = data;
+		this.#todoList = storage;
 
 		if (this.#todoList.length === 0)
 			this.#errorInfo.textContent = 'Brak zadań na liście';

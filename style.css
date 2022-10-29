@@ -76,6 +76,7 @@ h1 {
 }
 
 .todolist {
+	position: relative;
 	padding: 20px 0;
 }
 
@@ -193,4 +194,30 @@ h1 {
 
 .date {
 	font-size: 0.8rem;
+}
+
+.hidden {
+	display: none;
+}
+
+.remove-todo {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+.remove-all {
+	margin: 10px 20px;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	text-transform: uppercase;
+	background-color: #ed5353;
+	color: #fff;
+	cursor: pointer;
+	transition: background-color 0.3s;
+}
+
+.remove-all:hover {
+	background-color: #e62f2f;
 }
