@@ -30,7 +30,6 @@ class App {
 		this.#errorInfo = document.querySelector('.error-info');
 		this.#ulList = document.querySelector('.todolist ul');
 		this.#removeAllButton = document.querySelector('.remove-todo');
-
 		this.#popup = document.querySelector('.popup');
 		this.#popupInfo = document.querySelector('.popup-info');
 		this.#popupInput = document.querySelector('.popup-input');
@@ -58,10 +57,7 @@ class App {
 	}
 
 	#addTodo() {
-		if (
-			this.#todoInput.value !== '' &&
-			!this.#todoInput.value.startsWith('<')
-		) {
+		if (String(this.#todoInput.value) !== '') {
 			this.#errorInfo.textContent = '';
 			this.#newTodo = this.#todoInput.value;
 
@@ -86,8 +82,14 @@ class App {
 			this.#removeAllButton.classList.remove('hidden');
 		}
 
+		const addTodoName = document.createElement('li');
+
+		addTodoName.setAttribute('data-id', todo.id);
+		addTodoName.textContent = todo.name;
+
+		this.#ulList.append(addTodoName);
+
 		const html = `
-			<li data-id='${todo.id}'>${todo.name}
 				<div class="time">
 					<span class="date">Data dodania: ${todo.date}</span>
 				</div>
@@ -95,9 +97,8 @@ class App {
 					<button class="complete"><i class="fas fa-check"></i></button>
 					<button class="edit">EDIT</button>
 					<button class="delete"><i class="fas fa-times"></i></button>
-				</div>
-			</li>`;
-		this.#ulList.insertAdjacentHTML('beforeend', html);
+				</div>`;
+		addTodoName.insertAdjacentHTML('beforeend', html);
 	}
 	#checkClick(e) {
 		const clicked = (e, value) => e.target.classList.contains(value);
