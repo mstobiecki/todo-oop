@@ -5,7 +5,7 @@ class Task {
 		this.date = date;
 	}
 }
-class App {
+class Todo {
 	#newTodo;
 	#todoInput;
 	#addButtonInput;
@@ -57,7 +57,7 @@ class App {
 	}
 
 	#addTodo() {
-		if (String(this.#todoInput.value) !== '') {
+		if (this.#todoInput.value !== '') {
 			this.#errorInfo.textContent = '';
 			this.#newTodo = this.#todoInput.value;
 
@@ -183,4 +183,4 @@ class App {
 	}
 }
 
-const app = new App();
+const todo = new Todo();
