@@ -39,26 +39,29 @@ class App {
 
 		this.#errorInfo.textContent = 'Brak zadań na liście';
 
-		this.#addButtonInput.addEventListener('click', this._addTodo.bind(this));
-		this.#ulList.addEventListener('click', this._checkClick.bind(this));
-		this.#cancel.addEventListener('click', this._cancelPopup.bind(this));
-		this.#accept.addEventListener('click', this._changeTodo.bind(this));
-		this.#removeAllButton.addEventListener('click', this._removeAllTodos);
+		this.#addButtonInput.addEventListener('click', this.#addTodo.bind(this));
+		this.#ulList.addEventListener('click', this.#checkClick.bind(this));
+		this.#cancel.addEventListener('click', this.#cancelPopup.bind(this));
+		this.#accept.addEventListener('click', this.#changeTodo.bind(this));
+		this.#removeAllButton.addEventListener('click', this.#removeAllTodos);
 		this.#todoInput.addEventListener('keyup', (e) => {
-			if (e.key === 'Enter') this._addTodo();
+			if (e.key === 'Enter') this.#addTodo();
 		});
 		this.#popupInput.addEventListener('keyup', (e) => {
-			if (e.key === 'Enter') this._changeTodo();
+			if (e.key === 'Enter') this.#changeTodo();
 		});
 		document.addEventListener('keyup', (e) => {
-			if (e.key === 'Escape') this._cancelPopup();
+			if (e.key === 'Escape') this.#cancelPopup();
 		});
 
-		this._getLocalStorage();
+		this.#getLocalStorage();
 	}
 
-	_addTodo() {
-		if (this.#todoInput.value !== '') {
+	#addTodo() {
+		if (
+			this.#todoInput.value !== '' &&
+			!this.#todoInput.value.startsWith('<')
+		) {
 			this.#errorInfo.textContent = '';
 			this.#newTodo = this.#todoInput.value;
 
@@ -68,16 +71,16 @@ class App {
 				dateStyle: 'long',
 			}).format(date);
 
-			const allTodo = new Task(this.#newTodo, showDate);
-			this.#todoList.push(allTodo);
+			const singleTodo = new Task(this.#newTodo, showDate);
+			this.#todoList.push(singleTodo);
 
-			this._renderTodo(allTodo);
-			this._setLocalStorage(allTodo);
+			this.#renderTodo(singleTodo);
+			this.#setLocalStorage(singleTodo);
 
 			this.#todoInput.value = '';
 		} else this.#errorInfo.textContent = 'Uzupełnij formularz przed wysłaniem!';
 	}
-	_renderTodo(todo) {
+	#renderTodo(todo) {
 		if (this.#todoList.length > 0) {
 			this.#errorInfo.textContent = '';
 			this.#removeAllButton.classList.remove('hidden');
@@ -96,30 +99,30 @@ class App {
 			</li>`;
 		this.#ulList.insertAdjacentHTML('beforeend', html);
 	}
-	_checkClick(e) {
+	#checkClick(e) {
 		const clicked = (e, value) => e.target.classList.contains(value);
 
-		if (clicked(e, 'complete')) this._completeTodo(e);
-		if (clicked(e, 'edit')) this._editTodo(e);
-		if (clicked(e, 'delete')) this._removeTodo(e);
+		if (clicked(e, 'complete')) this.#completeTodo(e);
+		if (clicked(e, 'edit')) this.#editTodo(e);
+		if (clicked(e, 'delete')) this.#removeTodo(e);
 	}
-	_completeTodo(e) {
+	#completeTodo(e) {
 		e.target.classList.toggle('completed');
 		e.target.closest('li').classList.toggle('completed');
 	}
-	_editTodo(e) {
+	#editTodo(e) {
 		this.#todoToEdit = e.target.closest('li');
 		const todoToEditValue = this.#todoToEdit.firstChild.textContent.trimEnd();
 
 		this.#todoValue = todoToEditValue;
 		this.#popupInput.value = todoToEditValue;
-		this._changeDisplay('flex');
+		this.#changeDisplay('flex');
 	}
-	_changeTodo() {
+	#changeTodo() {
 		if (this.#popupInput.value !== '') {
 			this.#todoToEdit.firstChild.textContent = this.#popupInput.value;
 			this.#popupInfo.textContent = '';
-			this._changeDisplay('none');
+			this.#changeDisplay('none');
 		} else this.#popupInfo.textContent = 'Uzupełnij formularz przed edycją!';
 
 		const id = this.#todoToEdit.dataset.id;
@@ -129,7 +132,7 @@ class App {
 		localStorage.removeItem(`todo${id}`);
 		localStorage.setItem(`todo${id}`, newData);
 	}
-	_removeTodo(e) {
+	#removeTodo(e) {
 		const clicked = e.target.closest('li');
 		clicked.remove();
 
@@ -149,17 +152,17 @@ class App {
 			this.#removeAllButton.classList.add('hidden');
 		}
 	}
-	_removeAllTodos() {
+	#removeAllTodos() {
 		localStorage.clear();
 		location.reload();
 	}
-	_cancelPopup() {
-		this._changeDisplay('none');
+	#cancelPopup() {
+		this.#changeDisplay('none');
 	}
-	_setLocalStorage(todo) {
+	#setLocalStorage(todo) {
 		localStorage.setItem(`todo${todo.id}`, JSON.stringify(todo));
 	}
-	_getLocalStorage() {
+	#getLocalStorage() {
 		let storage = [];
 		for (const key in localStorage) {
 			if (key.startsWith('todo')) {
@@ -172,9 +175,9 @@ class App {
 		if (this.#todoList.length === 0)
 			this.#errorInfo.textContent = 'Brak zadań na liście';
 
-		this.#todoList.forEach((task) => this._renderTodo(task));
+		this.#todoList.forEach((task) => this.#renderTodo(task));
 	}
-	_changeDisplay(value) {
+	#changeDisplay(value) {
 		this.#popup.style.display = value;
 	}
 }
